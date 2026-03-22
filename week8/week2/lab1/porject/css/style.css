@@ -1,0 +1,134 @@
+body {
+  background-color: #7d8797;
+  margin: 0;
+  padding: 0;
+  font-family: Verdana, sans-serif;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #0e53f4;
+  color: #bb00ff;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 25px;
+  border-bottom: 3px solid #660099;
+  background-image: linear-gradient(to right, #1a001a, #330033);
+}
+
+header p {
+  margin: 0;
+  font-weight: bold;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  background-color: #1a001a;
+  border-bottom: 2px solid #bb00ff;
+}
+
+ul li {
+  margin: 0;
+}
+
+ul li a {
+  display: block;
+  color: #bb00ff;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+ul li a:hover {
+  background-color: #bb00ff;
+  color: #000000;
+}
+
+
+h1 {
+  color: #bb00ff;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 8px #660099;
+}
+
+p {
+  font-size: 18px;
+  line-height: 1.6;
+  text-align: center;
+  margin: 15px 40px;
+}
+
+table {
+  width: 90%;
+  border-collapse: collapse;
+  margin: 30px auto;
+  font-size: 16px;
+  background-color: #1a001a;
+  border-radius: 10px;
+}
+
+th, td {
+  border: 1px solid #bb00ff;
+  padding: 12px;
+  text-align: center;
+}
+
+tr:hover td {
+  background-color: #bb00ff;
+  color: #000000;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+footer {
+  text-align: center;
+  background-color: #1a001a;
+  color: #bb00ff;
+  padding: 15px 0;
+  font-size: 14px;
+  border-top: 2px solid #bb00ff;
+}
+
+.music-page {
+  background-image: url("../images/guitar.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: white;
+}
+
+#pic {
+  width: 200px;
+  border-radius: 10px;
+  border: 3px solid #333;
+}
+
+header p {
+  color: gray;
+  font-style: italic;
+}
+
+header h2{
+  color: #bb00ff;
+  font-style: italic;
+}
