@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean O'Brien — Albums</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">Sean O'Brien</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="data.html" class="active">Albums</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <!-- Handlebars template for the album table -->
+  <script id="album-template" type="text/x-handlebars-template">
+    {{#if this.length}}
+      <thead>
+        <tr>
+          <th></th>
+          <th>Title</th>
+          <th>Artist</th>
+          <th>Genre</th>
+          <th>Year</th>
+          <th>Rating</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each this}}
+        <tr>
+          <!-- Show album image if it has one, otherwise show a music note -->
+          <td>
+            {{#if img}}
+              <img class="album-thumb" src="{{img}}" alt="{{title}}">
+            {{else}}
+              <span style="font-size:1.5rem;">🎵</span>
+            {{/if}}
+          </td>
+          <td><strong>{{title}}</strong></td>
+          <td>{{artist}}</td>
+          <td>{{genre}}</td>
+          <td>{{year}}</td>
+          <td><span class="rating-badge">{{rating}}</span></td>
+          <!-- Delete button uses data-id to identify which album to remove -->
+          <td><button class="btn btn-danger btn-sm" data-id="{{id}}">Delete</button></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    {{else}}
+      <tbody><tr><td colspan="7" style="text-align:center; color:#a07878; padding:2rem; font-size:0.9rem;">
+        No albums match your search.
+      </td></tr></tbody>
+    {{/if}}
+  </script>
+
+  <div class="page-wrapper">
+    <h1 class="page-title">Albums</h1>
+
+    <!-- Stat bar shows calculated info about the dataset -->
+    <div class="stat-bar" id="stat-bar"></div>
+
+    <!-- Search and sort controls -->
+    <div class="controls">
+      <input type="text" id="search-input" placeholder="Search by title or artist...">
+      <select id="sort-field">
+        <option value="">Sort by...</option>
+        <option value="title">Title</option>
+        <option value="artist">Artist</option>
+        <option value="year">Year</option>
+        <option value="rating">Rating</option>
+      </select>
+      <select id="sort-dir">
+        <option value="asc">Ascending ↑</option>
+        <option value="desc">Descending ↓</option>
+      </select>
+      <button class="btn" id="sort-btn">Sort</button>
+      <button class="btn btn-danger" id="reset-btn">Reset</button>
+    </div>
+
+    <!-- Table gets populated by Handlebars -->
+    <div class="table-wrap">
+      <table id="album-table"></table>
+    </div>
+
+    <!-- Form to add a new album -->
+    <div class="form-card">
+      <h2>Add New Album</h2>
+      <form id="add-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="f-title">Title *</label>
+            <input type="text" id="f-title" required>
+          </div>
+          <div class="form-group">
+            <label for="f-artist">Artist *</label>
+            <input type="text" id="f-artist" required>
+          </div>
+          <div class="form-group">
+            <label for="f-genre">Genre *</label>
+            <input type="text" id="f-genre" required>
+          </div>
+          <div class="form-group">
+            <label for="f-year">Year *</label>
+            <input type="number" id="f-year" min="1950" max="2025" required>
+          </div>
+          <div class="form-group">
+            <label for="f-rating">Rating (1–10) *</label>
+            <input type="number" id="f-rating" min="1" max="10" step="0.1" required>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn">Add Album</button>
+          <button type="reset" class="btn btn-danger">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p><span id="year"></span> Sean O'Brien - Web Dev 2</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js"></script>
+  <script src="js/script.js"></script>
+
+  <script>
+    // Set the year in the footer automatically
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Keep track of what the user has searched and how they want things sorted
+    let sortKey = "";
+    let sortDir = "asc";
+    let searchQuery = "";
+
+    // Work out the average rating across all albums
+    // and find which one has the highest rating
+    const updateStat = () => {
+      const avg = (albumData.reduce((sum, a) => sum + a.rating, 0) / albumData.length).toFixed(2);
+      const highest = albumData.reduce((best, a) => a.rating > best.rating ? a : best, albumData[0]);
+      document.getElementById("stat-bar").innerHTML =
+        `<strong>${albumData.length}</strong> albums &nbsp;|&nbsp;
+         Avg rating: <strong>${avg} / 10</strong> &nbsp;|&nbsp;
+         Highest rated: <strong>${highest.title}</strong> (${highest.rating})`;
+    };
+
+    // This is the main function that shows the albums in the table
+    // It filters by search, sorts if needed, then renders via Handlebars
+    const renderTable = () => {
+      // Only show albums that match what the user typed
+      let displayed = albumData.filter(a =>
+        a.title.toLowerCase().includes(searchQuery) ||
+        a.artist.toLowerCase().includes(searchQuery)
+      );
+
+      // If the user picked a sort option, sort the results
+      if (sortKey) {
+        displayed = [...displayed].sort((a, b) => {
+          const valA = typeof a[sortKey] === "string" ? a[sortKey].toLowerCase() : a[sortKey];
+          const valB = typeof b[sortKey] === "string" ? b[sortKey].toLowerCase() : b[sortKey];
+          if (valA < valB) return sortDir === "asc" ? -1 : 1;
+          if (valA > valB) return sortDir === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
+
+      // Pass the data into the Handlebars template and put it in the table
+      renderTemplate("album-template", displayed, "album-table");
+
+      // After the table is rendered, attach a delete listener to each button
+      // We do this after render because the buttons didn't exist before
+      document.querySelectorAll("button[data-id]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          // Find the album by its id and remove it from the array
+          const id = parseInt(btn.dataset.id);
+          albumData = albumData.filter(a => a.id !== id);
+          saveData();
+          updateStat();
+          renderTable();
+        });
+      });
+    };
+
+    // Update the search query and re-render the table as the user types
+    document.getElementById("search-input").addEventListener("input", (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderTable();
+    });
+
+    // When sort is clicked, grab the selected field and direction then re-render
+    document.getElementById("sort-btn").addEventListener("click", () => {
+      sortKey = document.getElementById("sort-field").value;
+      sortDir = document.getElementById("sort-dir").value;
+      renderTable();
+    });
+
+    // Reset everything back to the default state
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      document.getElementById("search-input").value = "";
+      document.getElementById("sort-field").value = "";
+      document.getElementById("sort-dir").value = "asc";
+      searchQuery = "";
+      sortKey = "";
+      sortDir = "asc";
+      renderTable();
+    });
+
+    // Handle adding a new album from the form
+    document.getElementById("add-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const year   = parseInt(document.getElementById("f-year").value);
+      const rating = parseFloat(document.getElementById("f-rating").value);
+
+      // Make sure the year and rating are valid before doing anything
+      if (isNaN(year) || year < 1950 || year > 2025) {
+        alert("Please enter a valid year between 1950 and 2025.");
+        return;
+      }
+      if (isNaN(rating) || rating < 1 || rating > 10) {
+        alert("Rating must be between 1 and 10.");
+        return;
+      }
+
+      // Create a new album object from the form values and add it to the array
+      const newAlbum = {
+        id:     Date.now(),
+        title:  document.getElementById("f-title").value.trim(),
+        artist: document.getElementById("f-artist").value.trim(),
+        genre:  document.getElementById("f-genre").value.trim(),
+        year,
+        rating,
+        img:    ""
+      };
+
+      albumData.push(newAlbum);
+      saveData();
+      updateStat();
+      renderTable();
+      e.target.reset();
+    });
+
+    // Show the stat bar and table when the page first loads
+    updateStat();
+    renderTable();
+  </script>
+</body>
+</html>
