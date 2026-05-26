@@ -1,6 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean O'Brien — Home</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">Sean O'Brien</a>
+    <ul>
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="data.html">Albums</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <h1>Sean O'Brien</h1>
+    <p>A collection of albums.</p>
+    <a href="data.html" class="hero-btn">Browse Albums</a>
+  </section>
+
+  <!-- Interaction 1: greeting section -->
+  <section class="greeting-section">
+    <p>Enter your name for a personalised welcome</p>
+    <div class="input-row">
+      <input type="text" id="name-input" placeholder="Your name...">
+      <button class="btn" id="greet-btn">Go</button>
+    </div>
+    <p id="greeting-output"></p>
+  </section>
+
+  <!-- Swiper carousel with search bar to filter slides -->
+  <section class="carousel-section">
+    <h2>Featured Albums</h2>
+    <div class="carousel-search">
+      <input type="text" id="carousel-search" placeholder="Search albums...">
+    </div>
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper" id="swiper-slides"></div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </section>
+
+  <!-- Lightbox overlay — shown when a carousel image is clicked -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close">✕</button>
+    <img id="lightbox-img" src="" alt="">
+    <p id="lightbox-caption"></p>
+  </div>
+
+  <!-- Interaction 2: expandable fact cards -->
+  <section class="facts-section">
+    <h2>Did You Know?</h2>
+    <div id="facts-container"></div>
+  </section>
+
+  <footer>
+    <p> <span id="year"></span> Sean O'Brien  Web Dev 2</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js"></script>
+  <script src="js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    // Set the year in the footer automatically
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const greetBtn = document.getElementById("greet-btn");
+    const nameInput = document.getElementById("name-input");
+    const greetingOutput = document.getElementById("greeting-output");
+
+    // A few different greetings so it feels random each time
+    const greetings = ["Good to see you,", "Welcome back,", "Nice taste in music,", "Hey there,"];
+
+    // When the user clicks Go, pick a random greeting and show it with their name
+    greetBtn.addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      if (!name) {
+        greetingOutput.textContent = "Enter your name above!";
+        return;
+      }
+      const pick = greetings[Math.floor(Math.random() * greetings.length)];
+      greetingOutput.textContent = `${pick} ${name}.`;
+    });
+
+    // Let the user press Enter instead of clicking the button
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") greetBtn.click();
+    });
+
+    // Grab the lightbox elements we need
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const lightboxCaption = document.getElementById("lightbox-caption");
+
+    // This opens the lightbox and puts the right image and caption inside it
+    const openLightbox = (img, title, artist) => {
+      lightboxImg.src = img;
+      lightboxImg.alt = title;
+      lightboxCaption.textContent = `${title} — ${artist}`;
+      lightbox.classList.add("open");
+    };
+
+    // Close the lightbox when the X is clicked
+    document.getElementById("lightbox-close").addEventListener("click", () => {
+      lightbox.classList.remove("open");
+    });
+
+    // Also close it if the user clicks the dark background around the image
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) lightbox.classList.remove("open");
+    });
+
+    // This builds the carousel slides from whatever album data is passed in
+    // It clears the old slides first, then creates a new one for each album
+    const buildSlides = (data) => {
+      const wrapper = document.getElementById("swiper-slides");
+      wrapper.innerHTML = "";
+      data.forEach(album => {
+        const slide = document.createElement("div");
+        slide.className = "swiper-slide";
+        slide.innerHTML = `
+          <img src="${album.img}" alt="${album.title}">
+          <div class="slide-info">
+            <h3>${album.title}</h3>
+            <p>${album.artist}</p>
+          </div>
+        `;
+        // Clicking any slide opens the lightbox for that album
+        slide.addEventListener("click", () => {
+          openLightbox(album.img, album.title, album.artist);
+        });
+        wrapper.appendChild(slide);
+      });
+      // Tell Swiper to refresh so it picks up the new slides
+      swiper.update();
+    };
+
+    // Set up Swiper — this is the third party carousel plugin
+    // It needs to be initialised with JS for it to work
+    const swiper = new Swiper(".mySwiper", {
+      slidesPerView: "auto",
+      spaceBetween: 16,
+      pagination: { el: ".swiper-pagination", clickable: true },
+      navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+      breakpoints: {
+        640:  { slidesPerView: 3 },
+        900:  { slidesPerView: 4 },
+        1100: { slidesPerView: 5 }
+      }
+    });
+
+    // Load all albums into the carousel when the page first opens
+    buildSlides(albumData);
+
+    // As the user types in the search box, filter the carousel to matching albums
+    document.getElementById("carousel-search").addEventListener("input", (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      const filtered = albumData.filter(a =>
+        a.title.toLowerCase().includes(query) ||
+        a.artist.toLowerCase().includes(query)
+      );
+      buildSlides(filtered);
+    });
+
+    // Each fact has a title and a longer description that's hidden by default
+    const facts = [
+      {
+        title: "Panchiko's D>E>A>T>H>M>E>T>A>L was found in a charity shop",
+        body: "In July 2016, an anonymous 4chan user found a CD in a charity shop in Nottingham, UK and uploaded it online. A global search for the band followed the members themselves had no idea the album existed. Panchiko eventually reunited and released a remastered version in 2020, gaining a huge cult following for their unique blend of shoegaze and indie rock."
+      },
+      {
+        title: "Loveless nearly bankrupted Creation Records",
+        body: "My Bloody Valentine spent over two years and around £250,000 recording Loveless, almost sending their label Creation Records into bankruptcy. Despite the cost, it became one of the most influential albums in shoegaze and alternative music history."
+      },
+      {
+        title: "Graduation outsold 50 Cent in a historic chart battle",
+        body: "Kanye West and 50 Cent both released albums on the same day in September 2007. Graduation sold over 957,000 copies in its first week, beating 50 Cent's Curtis by nearly 300,000. 50 Cent had promised to retire if he lost."
+      },
+      {
+        title: "The Smiths recorded The Queen Is Dead in just two weeks",
+        body: "Despite being widely considered one of the greatest albums ever made, The Queen Is Dead was recorded in a very short time. Morrissey and Marr's creative chemistry meant the sessions were fast and focused, resulting in an album Rolling Stone ranked in its top 100 of all time."
+      },
+      {
+        title: "Wish You Were Here was written as a tribute to Syd Barrett",
+        body: "Pink Floyd wrote the album largely as an ode to their former bandmate Syd Barrett, who had suffered a breakdown and left the band. In a strange coincidence, Barrett showed up unannounced at the studio during recording sessions the band didn't recognise him at first."
+      }
+    ];
+
+    // Create a card for each fact and add it to the page
+    const factsContainer = document.getElementById("facts-container");
+    facts.forEach(fact => {
+      const card = document.createElement("div");
+      card.className = "fact-card";
+      card.innerHTML = `
+        <div class="fact-title">${fact.title}<span>▼</span></div>
+        <div class="fact-body">${fact.body}</div>
+      `;
+      // Clicking the card toggles it open and closed
+      card.addEventListener("click", () => card.classList.toggle("open"));
+      factsContainer.appendChild(card);
+    });
+  </script>
+=======
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Web Dev Portfolio</title>
@@ -68,5 +278,6 @@
         <li class="category-header"><strong>Misc</strong></li>
         <li><a href="mycalculator2.html" target="_blank">My Calculator 2</a></li>
     </ul>
+>>>>>>> 13f4041fc89ffe6d33f0ffdd857c3d54cc9fd603
 </body>
 </html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean O'Brien — About</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">Sean O'Brien</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="data.html">Albums</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+    </ul>
+  </nav>
+
+  <!-- Handlebars template for comments — renders most recent first -->
+  <script id="comments-template" type="text/x-handlebars-template">
+    {{#if this.length}}
+      {{#each this}}
+        <div class="comment-card">
+          <div class="c-name">{{name}}</div>
+          <div class="c-msg">{{message}}</div>
+        </div>
+      {{/each}}
+    {{else}}
+      <p style="color:#a07878; font-size:0.88rem;">No comments yet — be the first!</p>
+    {{/if}}
+  </script>
+
+  <div class="page-wrapper">
+    <h1 class="page-title">About</h1>
+
+    <!-- Info cards about the project and dataset -->
+    <div class="about-grid">
+      <div class="info-card">
+        <h2>The Project</h2>
+        <p>This is a music album tracker built for my Website Development 2 assignment.</p>
+        <p>It lets you browse, search, sort, add and delete albums from a collection of some of my favourite records.</p>
+        <p>Built with JavaScript, Handlebars templating, and localStorage for data persistence.</p>
+      </div>
+      <div class="info-card">
+        <h2>The Dataset</h2>
+        <p>The collection spans shoegaze, indie rock, grunge, hip hop and progressive rock:</p>
+        <ul>
+          <li>8 preloaded albums including Panchiko, My Bloody Valentine, Pink Floyd and more</li>
+          <li>Properties: title, artist, genre, year, rating (1–10)</li>
+          <li>Fully searchable by title or artist</li>
+          <li>Sortable by any field, ascending or descending</li>
+          <li>Data saved in your browser via localStorage</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Interaction 1: animated count-up -->
+    <div class="interaction-card">
+      <h2>Your Collection</h2>
+      <p>Click to count how many albums are in the vault</p>
+      <button class="btn" id="count-btn">Count Albums</button>
+      <div id="count-display">—</div>
+    </div>
+
+    <!-- Interaction 2: random album picker -->
+    <div class="interaction-card">
+      <h2>What Should I Listen To?</h2>
+      <p>Can't decide? Let the site pick for you.</p>
+      <button class="btn" id="random-btn">Pick a Random Album</button>
+      <div id="random-output">
+        <img id="random-img" src="" alt="">
+        <p id="random-title"></p>
+        <p id="random-artist"></p>
+        <p id="random-detail"></p>
+      </div>
+    </div>
+
+    <!-- Comments section -->
+    <div class="comments-section">
+      <h2>Comments</h2>
+      <form class="comment-form" id="comment-form">
+        <input type="text" id="c-name" placeholder="Your name *" required>
+        <textarea id="c-msg" rows="3" placeholder="Leave a comment..." required></textarea>
+        <div><button type="submit" class="btn">Post Comment</button></div>
+      </form>
+      <div id="comments-output"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p> <span id="year"></span> Sean O'Brien - Web Dev 2</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js"></script>
+  <script src="js/script.js"></script>
+
+  <script>
+    // Set the year in the footer automatically
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Load any comments the user has already left, or start with an empty array
+    let comments = JSON.parse(localStorage.getItem("vaultfm-comments")) || [];
+
+    // Save the comments array to the browser so they persist on refresh
+    const saveComments = () => {
+      localStorage.setItem("vaultfm-comments", JSON.stringify(comments));
+    };
+
+    // Show the comments on the page, newest first
+    // We reverse a copy of the array so we don't mess up the original order
+    const renderComments = () => {
+      const reversed = [...comments].reverse();
+      renderTemplate("comments-template", reversed, "comments-output");
+    };
+
+    // When the comment form is submitted, add the new comment to the array
+    document.getElementById("comment-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name    = document.getElementById("c-name").value.trim();
+      const message = document.getElementById("c-msg").value.trim();
+      if (!name || !message) return;
+      // Add the new comment as an object with a name and message
+      comments.push({ name, message });
+      saveComments();
+      renderComments();
+      e.target.reset();
+    });
+
+    // Count up from 0 to the number of albums with a small animation
+    document.getElementById("count-btn").addEventListener("click", () => {
+      const display = document.getElementById("count-display");
+      const target  = albumData.length;
+      let current   = 0;
+      display.textContent = "0";
+      const interval = setInterval(() => {
+        current++;
+        display.textContent = current;
+        // Once we hit the target, stop the interval and show the final count
+        if (current >= target) {
+          clearInterval(interval);
+          display.textContent = `${target} albums`;
+        }
+      }, 120);
+    });
+
+    // Pick a random album from the array and display its details
+    document.getElementById("random-btn").addEventListener("click", () => {
+      const pick = albumData[Math.floor(Math.random() * albumData.length)];
+      document.getElementById("random-img").src    = pick.img;
+      document.getElementById("random-img").alt    = pick.title;
+      document.getElementById("random-title").textContent  = pick.title;
+      document.getElementById("random-artist").textContent = `by ${pick.artist}`;
+      document.getElementById("random-detail").textContent =
+        `${pick.genre} · ${pick.year} · Rating: ${pick.rating}/10`;
+      document.getElementById("random-output").style.display = "block";
+    });
+
+    // Load any existing comments when the page opens
+    renderComments();
+  </script>
+</body>
+</html>
