@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album Carousel</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/css/lightgallery-bundle.min.css">
+</head>
+<body>
+
+<div class="topnav">
+  <a  href="index.html">Home</a>
+  <a href="data.html">Data</a>
+  
+  <a href="about.html">About</a>
+
+  
+</div>
+<section>	  <input type="text" id="name-input" placeholder="Enter your name">
+      <button id="greet-btn">Go</button>
+<p id="greeting-output"></p>
+</section>
+<button id="gallery-btn">Hide Gallery</button>
+<!-- javapluginlabs -->
+<section id="gallery" style="display: flex; gap: 10px; padding: 20px; flex-wrap: wrap; justify-content: center;">
+    <a href="images/deathmetal.jpg" data-lg-size="600-600">
+        <img alt="Panchiko" src="images/deathmetal.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+    <a href="images/graduation.jpg" data-lg-size="600-600">
+        <img alt="Graduation" src="images/graduation.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+    <a href="images/loveless.jpg" data-lg-size="600-600">
+        <img alt="Loveless" src="images/loveless.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+    <a href="images/metallica.jpg" data-lg-size="600-600">
+        <img alt="Master of Puppets" src="images/metallica.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+    <a href="images/pinkfloyd.jpg" data-lg-size="600-600">
+        <img alt="Wish You Were Here" src="images/pinkfloyd.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+    <a href="images/pumpkins.jpg" data-lg-size="600-600">
+        <img alt="Siamese Dream" src="images/pumpkins.jpg" style="width: 150px; cursor: pointer;">
+    </a> 
+    <a href="images/smiths.jpg" data-lg-size="600-600">
+        <img alt="The Queen Is Dead" src="images/smiths.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+    <a href="images/ten.jpg" data-lg-size="600-600">
+        <img alt="Ten" src="images/ten.jpg" style="width: 150px; cursor: pointer;">
+    </a>
+</section>
+
+
+<script>const greetBtn = document.querySelector('#greet-btn');
+
+greetBtn.addEventListener('click', () => {
+  const name = document.querySelector('#name-input').value;
+  document.querySelector('#greeting-output').textContent = `Hey there, ${name}!`;
+});;</script>
+<script 
+  src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/lightgallery.min.js">
+</script>
+<script 
+  src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/plugins/thumbnail/lg-thumbnail.min.js">
+</script>
+<script 
+  src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/plugins/zoom/lg-zoom.min.js">
+</script>
+<script 
+  src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/plugins/fullscreen/lg-fullscreen.min.js">
+</script>
+<footer>
+  <p>Made by Sean O'Brien</p>
+  <p id="clock"></p>
+</footer>
+<script>
+lightGallery(document.querySelector('#gallery'), {
+    plugins: [lgZoom, lgThumbnail, lgFullscreen],
+    thumbWidth: 80,
+    controls: true,
+    getCaptionFromTitleOrAlt: true,
+    loop : true,
+    actualSize: false,
+    counter: true,
+    fullScreen: true,
+    zoom: true,
+    mode: 'lg-fade'
+});
+const gallery = document.querySelector('#gallery');
+const galleryBtn = document.querySelector('#gallery-btn');
+
+galleryBtn.addEventListener('click', () => {
+  if (gallery.style.display === 'flex') {
+    gallery.style.display = 'none';
+    galleryBtn.textContent = 'Show Gallery';
+  } else {
+    gallery.style.display = 'flex';
+    galleryBtn.textContent = 'Hide Gallery';
+  }
+});
+
+
+const timer = () => {
+  let now = new Date();
+  let curTime = now.toLocaleTimeString();
+  document.querySelector("#clock").textContent = curTime;
+}
+
+timer();
+setInterval(timer, 1000);
+
+</script>
+
+
+</body>
+</html>

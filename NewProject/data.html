@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Albums</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+<ul>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="data.html">Albums</a></li>
+  <li><a href="about.html">About</a></li>
+</ul>
+
+<h1>Albums</h1>
+
+<div id="container">
+  <form id="searchForm">
+    <div class="form-row">
+      <label for="search">Search Albums</label>
+      <input type="text" id="search" name="search" placeholder="Search by artist" size="30">
+    </div>
+  </form>
+
+ <main>
+  <section id="buttons">
+    <button id="yearsdown">Sort by Year newest</button>
+    <button id="yearsup">Sort by Year oldest</button>
+    <button id="ratings">Sort by Rating</button>
+    <button id="reset">Reset</button>
+  </section>
+  <button id="toggle">Add an Album</button>
+  <table></table>
+  <p id="avg-rating"></p>
+</main>
+  
+
+  <dialog>
+    <header class="modal__title">
+      <h1>Add an Album<span id="close"><i class="fa fa-close"></i></span></h1>
+    </header>
+    <form id="inputForm">
+      <div class="form-row">
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" autofocus required>
+      </div>
+      <div class="form-row">
+        <label for="artist">Artist</label>
+        <input type="text" name="artist" id="artist" required>
+      </div>
+      <div class="form-row">
+        <label for="genre">Genre</label>
+        <input type="text" name="genre" id="genre" required>
+      </div>
+      <div class="form-row">
+        <label for="year">Year</label>
+        <input type="text" name="year" id="year" required>
+      </div>
+      <div class="form-row">
+        <label for="rating">Rating</label>
+        <input type="text" name="rating" id="rating" required>
+      </div>
+      <div class="form-row">
+        <label for="img">Image URL</label>
+        <input type="url" name="img" id="img" placeholder="https://..." required>
+      </div>
+      <button type="submit">Add a New Album</button>
+      <button type="reset">Clear the Info</button>
+    </form>
+  </dialog>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js"></script>
+
+<script id="cardisplay" type="text/x-handlebars-template">
+  {{#if this}}
+   <thead>
+    <tr>
+     <th>Title</th>
+     <th>Artist</th>
+     <th>Genre</th>
+     <th>Year</th>
+     <th>Rating</th>
+     <th>Picture</th>
+     <th></th>
+    </tr>
+   </thead>
+   <tbody>
+    {{#each this}}
+     <tr>
+      <td>{{title}}</td>
+      <td>{{artist}}</td>
+      <td>{{genre}}</td>
+      <td>{{year}}</td>
+      <td>{{formatRating rating}}</td>
+      <td><img src="{{img}}" alt="{{title}}" class="car-img"></td>
+      <td><button data-id="{{id}}">Delete</button></td>
+     </tr>
+    {{/each}}
+   </tbody>
+  {{/if}}
+</script>
+<footer>
+  <p>Made by Sean O'Brien</p>
+  <p id="clock"></p>
+</footer>
+<script src="js/script.js"></script>
+<!-- ///built on weeek9labs -->
+<script>
+  const form = document.querySelector("#inputForm");
+  const table = document.querySelector("table");
+  const btn = document.querySelector("#toggle");
+  const dialog = document.querySelector("dialog");
+  const btnClose = document.querySelector("#close");
+  const searchInput = document.querySelector("#search");
+let filteredAlbums = albumData.slice();
+  Handlebars.registerHelper('formatRating', (rating) => {
+    return Number(rating).toFixed(1) + " / 10";
+  });
+
+  const template = Handlebars.compile(document.querySelector('#cardisplay').innerHTML);
+
+ 
+  const displayRecs = (data, target) => {
+    target.innerHTML = template(data);
+  };
+
+  const addRecord = (evt) => {
+    evt.preventDefault();
+
+    const id = albumData.length ? albumData[albumData.length - 1].id + 1 : 1;
+    const title = form.elements.title.value;
+    const artist = form.elements.artist.value;
+    const genre = form.elements.genre.value;
+    const year = parseInt(form.elements.year.value);
+    const rating = parseFloat(form.elements.rating.value);
+    const img = form.elements.img.value;
+
+    if (isNaN(year) || year < 1900) {
+      alert("Please enter a valid year (1900 or later).");
+      return;
+    }
+
+    if (isNaN(rating) || rating < 0 || rating > 10) {
+      alert("Rating must be a number between 0 and 10.");
+      return;
+    }
+
+    const newAlbum = { id, title, artist, genre, year, rating, img };
+    albumData.push(newAlbum);
+
+    saveData();
+    displayRecs(albumData, table);
+    updateAvg();
+    form.reset();
+    form.elements[0].focus();
+  };
+
+  // Delete an album when the delete button is clicked
+  table.addEventListener("click", (evt) => {
+    if (evt.target.matches("button")) {
+      const deleteIndex = albumData.findIndex(
+        album => album.id === parseInt(evt.target.dataset.id)
+      );
+      if (deleteIndex !== -1) {
+        albumData.splice(deleteIndex, 1);
+        saveData();
+        displayRecs(albumData, table);
+        updateAvg();
+      }
+    }
+  });
+
+  // Filter albums as the user types in the search box
+  searchInput.addEventListener("input", () => {
+    const searchQuery = searchInput.value.trim().toLowerCase();
+    const filteredAlbums = albumData.filter(album =>
+      album.artist.toLowerCase().includes(searchQuery)
+    );
+    displayRecs(filteredAlbums, table);
+  });
+
+  form.addEventListener("submit", addRecord);
+  btn.addEventListener("click", () => dialog.showModal());
+  btnClose.addEventListener("click", () => dialog.close());
+
+  // Load albums on page load
+  displayRecs(albumData, table);
+document.querySelector("#yearsdown").addEventListener("click", () => {
+  const sorted = albumData.slice().sort((a, b) => b.year - a.year);
+  displayRecs(sorted, table);
+});
+
+document.querySelector("#yearsup").addEventListener("click", () => {
+  const sorted = albumData.slice().sort((a, b) => a.year - b.year);
+  displayRecs(sorted, table);
+});
+
+document.querySelector("#ratings").addEventListener("click", () => {
+  const sorted = albumData.slice().sort((a, b) => b.rating - a.rating);
+  displayRecs(sorted, table);
+});
+
+document.querySelector("#reset").addEventListener("click", () => {
+  displayRecs(albumData, table);
+});
+const updateAvg = () => {
+  const avg = (albumData.reduce((sum, a) => sum + a.rating, 0) / albumData.length).toFixed(1);
+  document.querySelector("#avg-rating").textContent = `Average Rating: ${avg} / 10`;
+};
+
+updateAvg();
+
+const timer = () => {
+  let now = new Date();
+  let curTime = now.toLocaleTimeString();
+  document.querySelector("#clock").textContent = curTime;
+}
+
+timer();
+setInterval(timer, 1000);
+
+</script>
+
+</body>
+</html>

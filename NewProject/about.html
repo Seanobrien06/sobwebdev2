@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album Carousel</title>
+ <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+<div class="topnav">
+  <a  href="index.html">Home</a>
+  <a href="data.html">Data</a>
+  
+  <a href="about.html">About</a>
+</div>
+<!-- made from the lab that used interactive cards -->
+<div class="card">
+  <div class="text">
+    <h3>About my project</h3>
+    <p>
+      This is a music album tracker built for my Website Development 2 assignment.
+      It lets you browse, search, sort, add and delete albums from a collection of some of my favourite records.
+      Built with JavaScript, Handlebars templating, and localStorage for data persistence.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="text">
+    <h3>The Collection</h3>
+    <p>The collection spans shoegaze, indie rock, grunge, hip hop and progressive rock:
+      8 preloaded albums including Panchiko, My Bloody Valentine, Pink Floyd and more.
+      Properties: title, artist, genre, year, rating (1–10).
+      Fully searchable by title or artist.
+      Sortable by any field, ascending or descending.
+      Data saved in your browser via localStorage.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="text">
+    <h3>Album Count</h3>
+    <button id="count-btn">Show Album Count</button>
+    <p id="album-count"></p>
+  </div>
+</div>
+<div class="card">
+  <div class="text">
+    <h3>Leave a Comment</h3>
+    
+    <form id="commentForm">
+      <div class="form-row">
+        <label for="username">Name</label>
+        <input type="text" name="username" id="username" required>
+      </div>
+      <div class="form-row">
+        <label for="comment">Comment</label>
+        <input type="text" name="comment" id="comment" required>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+
+    <p id="comment-output"></p>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js"></script>
+
+<script src="js/script.js"></script>
+
+<script>
+  document.querySelector('#count-btn').addEventListener('click', () => {
+    document.querySelector('#album-count').textContent = `Total Albums: ${albumData.length}`;
+  });
+</script>
+<div id="comments-output"></div>
+<footer>
+  <p>Made by Sean O'Brien</p>
+  <p id="clock"></p>
+</footer>
+<script id="comments-template" type="text/x-handlebars-template">
+  {{#each this}}
+    <p><b>{{name}}</b> says: {{comment}}</p>
+  {{/each}}
+</script>
+
+<script>let comments = [];
+
+const commentTemplate = Handlebars.compile(
+  document.querySelector('#comments-template').innerHTML
+);
+
+const renderComments = () => {
+  const reversed = [...comments].reverse();
+  document.querySelector('#comments-output').innerHTML = commentTemplate(reversed);
+};
+ document.querySelector('#commentForm').addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const name = document.querySelector('#username').value;
+    const comment = document.querySelector('#comment').value;
+    comments.push({ name, comment });
+    renderComments();
+    evt.target.reset();
+  });
+
+  const timer = () => {
+    let now = new Date();
+    let curTime = now.toLocaleTimeString();
+    document.querySelector("#clock").textContent = curTime;
+  }
+
+  timer();
+  setInterval(timer, 1000);</script>
+
+
+</body>
+</html>
